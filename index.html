@@ -309,7 +309,7 @@ $("go").onclick=async()=>{
       await db.doc("bookings/"+key).set({name:n,phone:p,service:svc,date:day,hour:time,at:new Date().toISOString()})}
     const hh=time;taken.add(key);time=null;dyn();$("nm").value="";$("ph").value="";say(t.ok,true);
     $("msg").insertAdjacentHTML("beforeend",`<a class="btn sm" style="margin-inline-start:8px" target="_blank" rel="noopener" href="https://wa.me/212670125520?text=${encodeURIComponent("Bonjour, je suis "+n+" ("+p+"). Je confirme mon rendez-vous du "+day+" à "+pad(hh)+":00.")}">${t.wc}</a>`);
-  }catch(e){if(e&&e.message==="taken")say(t.taken);else{say(t.nd);$("msg").insertAdjacentHTML("beforeend",waBtn(n,p,time))}}finally{$("go").disabled=false}
+  }catch(e){if(e&&e.message==="taken")say(t.taken);else{say(t.nd+" ["+(e&&e.message||e)+"]");$("msg").insertAdjacentHTML("beforeend",waBtn(n,p,time))}}finally{$("go").disabled=false}
 };
 render();
 const AH="890cddd5eff5f047f83ea4764a6ef949d15c5569a6e4ff2d64facae9fd0692a5";let adminOn=false,rows=[],subd=false,pend=null;
@@ -331,7 +331,7 @@ function bars(map){const ks=[];for(let i=6;i>=0;i--){const d=new Date();d.setDat
 function openBO(){$("bo").hidden=false;document.body.style.overflow="hidden";if(!bsub)subAll();shell()}
 function shell(){const ic={o:"📊",b:"📅",p:"👥",a:"📣",f:"💰",v:"👁"};
 $("bo").innerHTML=`<div class="sb"><div class="bd"><i>🦷</i>White Smile</div>${TABS.map(([k,l])=>`<button data-k="${k}" class="${k===tab?"on":""}"><i>${ic[k]}</i><span class="lb">${l}</span></button>`).join("")}<span class="sp"></span><button id="bx"><i>↗</i><span class="lb">Voir le site</span></button><button id="bq"><i>⎋</i><span class="lb">Déconnexion</span></button></div><div class="mn"><div class="tp"><div><h1>Bonjour, Dr. Lafdili</h1><span class="mini">${new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})} · <i class="lv"></i>en direct</span></div><button class="pill" id="bn">${soundOn?"🔔 Son activé":"🔕 Activer le son"}</button></div><h2>${TABS.find(t=>t[0]===tab)[1]}</h2><div id="fm"></div><div id="dt"></div></div>`;form();draw()}
-function subAll(){bsub=true;if(!db)return;[["bookings","b"],["visits","v"],["ads","a"],["finance","f"],["settings","s"]].forEach(([c,k])=>{try{db.collection(c).onSnapshot(s=>{S[k]=s.docs.map(d=>Object.assign({id:d.id},d.data()));if(k==="b")onBook(S.b);draw()},()=>{})}catch(e){}})}
+function subAll(){bsub=true;if(!db)return;[["bookings","b"],["visits","v"],["ads","a"],["finance","f"],["settings","s"]].forEach(([c,k])=>{try{db.collection(c).onSnapshot(s=>{S[k]=s.docs.map(d=>Object.assign({id:d.id},d.data()));if(k==="b")onBook(S.b);draw()},e=>{const n=$("dt");if(n)n.insertAdjacentHTML("afterbegin",`<p class="mini" style="color:#d64545">Lecture impossible : ${esc(e&&e.message||e)}</p>`)})}catch(e){}})}
 function form(){let h="";
   if(tab==="b")h='<input id="aq" placeholder="Rechercher un nom ou un numéro…" style="margin-bottom:12px">';
   if(tab==="a")h='<div class="cd"><div class="fr"><input id="an" placeholder="Nom de la campagne"><select id="ap"><option>Instagram</option><option>Facebook</option><option>TikTok</option><option>Google</option><option>Autre</option></select><input id="as" type="number" placeholder="Dépense (MAD)"><input id="al" type="number" placeholder="Leads obtenus"><button class="btn sm" id="add-a">Ajouter</button></div></div>';
@@ -383,7 +383,7 @@ $("ax1").onclick=closeAdm;
 $("adm").addEventListener("click",e=>{if(e.target.id==="adm")closeAdm()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeAdm()});
 $("ago").onclick=async()=>{const U=$("au").value.trim(),P=$("ap").value;let ok;
-  if(REMOTE){try{const j=await(await fetch(GAS_URL+"?"+new URLSearchParams({a:"login",u:U,p:P}))).json();ok=!!j.ok;if(ok)AUTH={u:U,p:P}}catch(e){$("aerr").textContent="Serveur injoignable.";return}}
+  if(REMOTE){try{const j=await(await fetch(GAS_URL+"?"+new URLSearchParams({a:"login",u:U,p:P}))).json();ok=!!j.ok;if(ok)AUTH={u:U,p:P}}catch(e){$("aerr").textContent="Serveur injoignable ["+(e&&e.message||e)+"]";return}}
   else ok=(await sha(U.toLowerCase()+":"+P))===AH;
   if(!ok){$("aerr").textContent="Identifiants incorrects.";return}
   adminOn=true;soundOn=true;unlock();try{Notification.requestPermission()}catch(x){}$("aerr").textContent="";$("ap").value="";closeAdm();openBO()};
@@ -399,7 +399,7 @@ function makeRemote(){
  return{
   collection:c=>({onSnapshot(cb,er){let on=true;const run=async()=>{if(!on)return;try{
     if(c==="slots"){const j=await get({a:"slots"});cb(snap((j.slots||[]).map(id=>({id}))))}
-    else if(AUTH){const j=await get(Object.assign({a:"list",c},au()));if(j.error)throw 0;cb(snap(j.docs||[]))}}catch(e){er&&er(e)}};
+    else if(AUTH){const j=await get(Object.assign({a:"list",c},au()));if(j.error)throw new Error(j.error);cb(snap(j.docs||[]))}}catch(e){er&&er(e)}};
     run();const t=setInterval(run,c==="slots"?30000:12000);return()=>{on=false;clearInterval(t)}}}),
   doc:path=>{const[c,id]=path.split("/");return{
    async get(){if(c==="slots"){const j=await get({a:"slots"});return{exists:(j.slots||[]).includes(id)}}return{exists:false}},
