@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="fr" dir="ltr" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -465,10 +465,10 @@ function makeRemote(){
      if(c==="visits"){await post({a:"visit",id,data:o});return}
      const j=await post(Object.assign({a:"set",c,id,data:o},au()));if(j.error)throw new Error(j.error)},
    async delete(){if(c==="slots")return;const j=await post(Object.assign({a:"del",c,id},au()));if(j.error)throw new Error(j.error)}}}}}
-function setTheme(m){document.documentElement.dataset.theme=m;$("tg").textContent=m==="dark"?"☀️":"🌙";try{localStorage.setItem("th",m)}catch(e){}}
-let saved=null;try{saved=localStorage.getItem("th")}catch(e){}
-setTheme(saved||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"));
-$("tg").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");
+function setTheme(m,keep){document.documentElement.dataset.theme=m;$("tg").textContent=m==="dark"?"☀️":"🌙";if(keep)try{localStorage.setItem("th2",m)}catch(e){}}
+let saved=null;try{saved=localStorage.getItem("th2")}catch(e){}
+setTheme(saved==="dark"?"dark":"light");
+$("tg").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark",1);
 (async()=>{try{db=await claude.use("db")}catch(e){}
  if(!db&&GAS_URL){db=makeRemote();REMOTE=true}
  if(db){try{db.collection("slots").onSnapshot(s=>{taken=new Set(s.docs.map(d=>d.id));dyn()});track()}catch(e){}}})();
