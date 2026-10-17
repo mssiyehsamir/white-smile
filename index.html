@@ -444,7 +444,7 @@ let ref="";try{ref=document.referrer?new URL(document.referrer).hostname:""}catc
 await db.doc("visits/v"+Date.now()+Math.random().toString(36).slice(2,6)).set({ts:new Date().toISOString(),vid,lang:navigator.language||"",dev:/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?"Mobile":"Ordinateur",ref})}catch(e){}}
 function makeRemote(){
  const post=async o=>(await fetch(GAS_URL,{method:"POST",body:JSON.stringify(o)})).json();
- const get=async q=>(await fetch(GAS_URL+"?"+new URLSearchParams(Object.assign({t:Date.now()},q)),{cache:"no-store"})).json();
+ const get=async q=>(await fetch(GAS_URL+"?"+new URLSearchParams(Object.assign({t:Date.now()},q)))).json();
  const snap=a=>({docs:a.map(o=>{const d=Object.assign({},o);delete d.id;return{id:o.id,exists:true,data:()=>d}})});
  const au=()=>AUTH?{u:AUTH.u,p:AUTH.p}:{};
  return{
